@@ -55,13 +55,14 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         icmph = recPacket[20:28]
         type, code, checksum, pID, sq = struct.unpack("bbHHh", icmph)
 
-        #print "The header received in the ICMP reply is ", type, code, checksum, pID, sq
+        #print ("ICMP Header: ", type, code, checksum, pID, sq)
+
         if pID == ID:
             bytesinDbl = struct.calcsize("d")
             timeSent = struct.unpack("d", recPacket[28:28 + bytesinDbl])[0]
             rtt = timeReceived - timeSent
 
-            #print "RTT is : "
+            #print ("RTT is : ")
             return rtt
 
         # Fill in end
@@ -91,7 +92,7 @@ def sendOnePing(mySocket, destAddr, ID):
     else:
         myChecksum = htons(myChecksum)
 
-    #print "The header sent with the ICMP request is ", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1
+    #print ("The header sent with the ICMP request is ", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
 
     header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
     packet = header + data
@@ -119,6 +120,7 @@ def doOnePing(destAddr, timeout):
 def ping(host, timeout=1):
     # timeout=1 means: If one second goes by without a reply from the server,
     # the client assumes that either the client's ping or the server's pong is lost
+
     dest = socket.gethostbyname(host)
     #print("Pinging " + dest + " using Python:")
     #print("")
@@ -130,6 +132,25 @@ def ping(host, timeout=1):
         #print(delay)
         time.sleep(1)  # one second
 
-    return vars
+    return delay
 
-ping("127.0.0.1")
+    #print ("For North America: NYU Polytechnic School of Engineering (poly.edu)")
+    ping("www.poly.edu")
+    #print ("")
+    #print ("For Europe: Oxford University (ox.ac.uk)")
+    ping("www.ox.ac.uk")
+    #print ("")
+    #print ("For Asia: Google Singapore (google.com.sg)")
+    ping("www.google.com.sg")
+    #print ("")
+    #print ("For Africa: Cairo University (cu.edu.eg/Home)")
+    ping("www.cu.edu.eg")
+    #print ("")
+
+    site = ""
+
+    while site != "Q" or "q":
+      site = raw_input("Enter the domain name of a site to ping, or Q to quit: ")
+      #print ("For " + site)
+      ping(site)
+      #print ("")
