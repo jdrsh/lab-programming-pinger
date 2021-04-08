@@ -106,7 +106,7 @@ def doOnePing(destAddr, timeout):
     icmp = getprotobyname("icmp")
 
     # SOCK_RAW is a powerful socket type. For more details:   http://sockraw.org/papers/sock_raw
-    mySocket = socket(AF_INET, SOCK_RAW, icmp)
+    mySocket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 
     myID = os.getpid() & 0xFFFF  # Return the current process i
     sendOnePing(mySocket, destAddr, myID)
@@ -117,27 +117,21 @@ def doOnePing(destAddr, timeout):
 
 
 def ping(host, timeout=1):
-    global rtt_min, rtt_max, rtt_sum, rtt_cnt
-    rtt_min = float('+inf')
-    rtt_max = float('-inf')
-    rtt_sum = 0
-    rtt_cnt = 0
-    cnt = 0
-    # timeout=1 means: If one second goes by without a reply from the server,
+        # timeout=1 means: If one second goes by without a reply from the server,
     # the client assumes that either the client's ping or the server's pong is lost
 
     dest = socket.gethostbyname(host)
     #print("Pinging " + dest + " using Python:")
     #print("")
     # Calculate vars values and return them
-    # vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
+    vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
     # Send ping requests to a server separated by approximately one second
     for i in range(0,4):
         delay = doOnePing(dest, timeout)
         #print(delay)
         time.sleep(1)  # one second
 
-    return delay
+    return vars
 
     #print ("For North America: NYU Polytechnic School of Engineering (poly.edu)")
     ping("www.poly.edu")
@@ -152,10 +146,4 @@ def ping(host, timeout=1):
     ping("www.cu.edu.eg")
     #print ("")
 
-    site = ""
 
-    while site != "Q" or "q":
-      site = raw_input("Enter the domain name of a site to ping, or Q to quit: ")
-      #print ("For " + site)
-      ping(site)
-      #print ("")
