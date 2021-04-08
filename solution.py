@@ -105,7 +105,6 @@ def sendOnePing(mySocket, destAddr, ID):
 def doOnePing(destAddr, timeout):
     icmp = getprotobyname("icmp")
 
-
     # SOCK_RAW is a powerful socket type. For more details:   http://sockraw.org/papers/sock_raw
     mySocket = socket(AF_INET, SOCK_RAW, icmp)
 
@@ -118,6 +117,12 @@ def doOnePing(destAddr, timeout):
 
 
 def ping(host, timeout=1):
+    global rtt_min, rtt_max, rtt_sum, rtt_cnt
+    rtt_min = float('+inf')
+    rtt_max = float('-inf')
+    rtt_sum = 0
+    rtt_cnt = 0
+    cnt = 0
     # timeout=1 means: If one second goes by without a reply from the server,
     # the client assumes that either the client's ping or the server's pong is lost
 
@@ -125,7 +130,7 @@ def ping(host, timeout=1):
     #print("Pinging " + dest + " using Python:")
     #print("")
     # Calculate vars values and return them
-    vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
+    # vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
     # Send ping requests to a server separated by approximately one second
     for i in range(0,4):
         delay = doOnePing(dest, timeout)
