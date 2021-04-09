@@ -119,17 +119,50 @@ def doOnePing(destAddr, timeout):
 def ping(host, timeout=1):
     # timeout=1 means: If one second goes by without a reply from the server,  	# the client assumes that either the client's ping or the server's pong is lost
     dest = gethostbyname(host)
-    #print("Pinging " + dest + " using Python:")
-    #print("")
-    # Calculate vars values and return them
-    #  vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
-    # Send ping requests to a server separated by approximately one second
-    for i in range(0,4):
-        delay = doOnePing(dest, timeout)
-        #print(delay)
-        time.sleep(1)  # one second
+   global pinged
+ if(pinged ==0):
+     print ("Pinging " + dest + " using Python:")
+     print ("")
+     pinged=1
+ #Send ping requests to a server separated by approximately one second
+ while 1 :
+     delay = doOnePing(dest, timeout)
+     if (delay=="Request timed out."):
+         print(delay)
+         print(" ")
+     else:
+         delay=delay*1000
+         print("rtt = " + str(delay) +" ms")
+         print(" ")
+     time.sleep(1)# one second
+     global totalrtt
+     global rttmin
+     global rttmax
+     if (delay!="Request timed out."):
+         if (delay<rttmin):
+             rttmin=delay
+         if (delay>rttmin):
+             rttmax=delay
+         totalrtt=totalrtt+delay
+     return delay
+    
+ ########################################################################
+hosttoping="tz.pool.ntp.org"
+print("Pinging: "+hosttoping+" with 8 bytes of data")
+for i in range (0,10):
+    ping(hosttoping)
 
-    return vars
+print("Ping Statistics for " +gethostbyname("www.poly.edu"))
+print("")
+print ("Packets: Sent = "+str(packetssent))
+print ("Packets: Received = "+str(packetsreceived))
+print ("Packets: lost =" +str(packetssent-packetsreceived))
+if((packetssent-packetsreceived)>=0):
+    print ("Packets: lost% = "+str(((packetssent-packetsreceived)/packetssent)*100))
+else:
+    print ("Packets: lost% = "+str(0))
+    
+print ("Minimum RTT: " + str(rttmin)+" ms")
+print("Maximum RTT: " +str(rttmax)+" ms")
+print("Average RTT: " +str(totalrtt/packetsreceived)+" ms")
 
-if __name__ == '__main__':
-    ping("google.co.il")
