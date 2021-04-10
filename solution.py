@@ -51,7 +51,7 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         # Fill in start
         # Fetch the ICMP header from the IP packet
         icmpheader = recPacket[:28]
-        _,_,_,_,_,ttl,_,_,_,_,type,code,checksum,id,sequence = struct.unpack("BBHHHBBHIIbbHHH",icmpheader)
+        _,_,_,_,_,ttl,_,_,_,_,type,code,checksum,id,sequence = struct.unpack("bbHHh",icmpheader)
         if id == ID:
             return f"Reply from {destAddr}: bytes={len(recPacket)} time={round(howLongInSelect*1000,7)}ms TTL={ttl}"
         # Fill in end
