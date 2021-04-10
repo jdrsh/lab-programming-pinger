@@ -54,9 +54,9 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         icmpheader = recPacket[20:28]
         struct_format= "bbHHh"
         unpacked_data = struct.unpack(struct_format, icmpheader)
-        print(unpacked_data)
+        #print(unpacked_data)
         _,_,_,_,_,ttl,_,_,_,_,type, code, check_sum, id, seq = struct.unpack(struct_format, icmpheader)
-        print(type, code, check_sum, ID,"icmp_seq =", seq)
+        #print(type, code, check_sum, ID,"icmp_seq =", seq)
         if id == ID:
             return f"Reply from {destAddr}: bytes={len(recPacket)} time={round(howLongInSelect*1000,7)}ms TTL={ttl}"
 
@@ -86,7 +86,7 @@ def sendOnePing(mySocket, destAddr, ID):
     else:
         myChecksum = htons(myChecksum)
 
-    print ("The header sent with the ICMP request is ", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
+    #print ("The header sent with the ICMP request is ", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
 
     header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
     packet = header + data
@@ -114,8 +114,8 @@ def doOnePing(destAddr, timeout):
 def ping(host, timeout=1):
     # timeout=1 means: If one second goes by without a reply from the server,  	# the client assumes that either the client's ping or the server's pong is lost
     dest = gethostbyname(host)
-    print("Pinging " + dest + " using Python:")
-    print("")
+    #print("Pinging " + dest + " using Python:")
+    #print("")
     # Calculate vars values and return them
     # vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
     # Send ping requests to a server separated by approximately one second
@@ -124,7 +124,7 @@ def ping(host, timeout=1):
     numping = 4
     for i in range(0,numping):
         delay = doOnePing(dest, timeout)
-        print(delay)
+        #print(delay)
         v.append(float(delay.split("=")[2].replace("ms TTL","")))
         if delay == "Request timed out.":
             failed += 1
@@ -136,9 +136,9 @@ def ping(host, timeout=1):
     packet_stdev = statistics.stdev(v)
     vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(packet_stdev, 2))]
 
-    print(f"--- {host} ping statistics ---")
-    print(f"{numping} packets transmitted, {failed} packets received, {(failed/numping) * 100}% packet loss")
-    print(f"round-trip min/avg/max/stdev = {vars[0]}/{vars[1]}/{vars[2]}/{vars[3]} ms")
+    #print(f"--- {host} ping statistics ---")
+    #print(f"{numping} packets transmitted, {failed} packets received, {(failed/numping) * 100}% packet loss")
+    #print(f"round-trip min/avg/max/stdev = {vars[0]}/{vars[1]}/{vars[2]}/{vars[3]} ms")
 
     return vars
 
