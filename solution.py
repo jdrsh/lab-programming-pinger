@@ -1,3 +1,4 @@
+
 from socket import *
 import os
 import sys
@@ -5,6 +6,7 @@ import struct
 import time
 import select
 import binascii
+import statistics
 # Should use stdev
 
 ICMP_ECHO_REQUEST = 8
@@ -48,19 +50,13 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         recPacket, addr = mySocket.recvfrom(1024)
 
         # Fill in start
-
         # Fetch the ICMP header from the IP packet
-
-        icmpheader = recPacket[20:28]
-        struct_format= "bbHHh"
-        unpacked_data = struct.unpack(struct_format, icmpheader)
-        #print(unpacked_data)
-        _,_,_,_,_,ttl,_,_,_,_,type, code, check_sum, id, seq = struct.unpack(struct_format, icmpheader)
-        #print(type, code, check_sum, ID,"icmp_seq =", seq)
+        icmpheader = recPacket[:28]
+        _,_,_,_,_,ttl,_,_,_,_,type,code,checksum,id,sequence = struct.unpack("bbHHhhhhhHHhhhh",icmpheader)
         if id == ID:
             return f"Reply from {destAddr}: bytes={len(recPacket)} time={round(howLongInSelect*1000,7)}ms TTL={ttl}"
-
         # Fill in end
+
         timeLeft = timeLeft - howLongInSelect
         if timeLeft <= 0:
             return "Request timed out."
@@ -73,7 +69,6 @@ def sendOnePing(mySocket, destAddr, ID):
     # Make a dummy header with a 0 checksum
     # struct -- Interpret strings as packed binary data
     header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
-
     data = struct.pack("d", time.time())
     # Calculate the checksum on the data and the dummy header.
     myChecksum = checksum(header + data)
@@ -86,7 +81,6 @@ def sendOnePing(mySocket, destAddr, ID):
     else:
         myChecksum = htons(myChecksum)
 
-    #print ("The header sent with the ICMP request is ", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
 
     header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
     packet = header + data
@@ -105,8 +99,8 @@ def doOnePing(destAddr, timeout):
     mySocket = socket(AF_INET, SOCK_RAW, icmp)
 
     myID = os.getpid() & 0xFFFF  # Return the current process i
-    sendOnePing(mySocket, destAddr, ID)
-    delay = receiveOnePing(mySocket, ID, timeout, destAddr)
+    sendOnePing(mySocket, destAddr, myID)
+    delay = receiveOnePing(mySocket, myID, timeout, destAddr)
     mySocket.close()
     return delay
 
@@ -117,7 +111,7 @@ def ping(host, timeout=1):
     #print("Pinging " + dest + " using Python:")
     #print("")
     # Calculate vars values and return them
-    # vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
+    # vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(packet_stdev, 2))]
     # Send ping requests to a server separated by approximately one second
     v = []
     failed = 0
@@ -143,17 +137,16 @@ def ping(host, timeout=1):
     return vars
 
 if __name__ == '__main__':
-    ping("google.co.il")
-    #print "For North America: NYU Polytechnic School of Engineering (poly.edu)"
-    #ping("www.poly.edu")
+    #ping("google.co.il")
+    #print "For North America: NYU (nyu.edu)"
+    #ping("www.nyu.edu")
     #print ""
     #print "For Europe: Oxford University (ox.ac.uk)"
     #ping("www.ox.ac.uk")
     #print ""
     #print "For Asia: Google Taiwan (google.tw)"
-    #ping("www.google.com.tw")
+    ping("www.google.com.tw")
     #print ""
-    #print "For Africa: Cairo University (cu.edu.eg/Home)"
+    #print "For Africa: American University in Cairo (aucegypt.edu)"
     #ping("aucegypt.edu")
     #print ""
-
